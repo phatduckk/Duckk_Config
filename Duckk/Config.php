@@ -1,5 +1,39 @@
 <?php
+/**
+ * Duckk_Config
+ *
+ * PHP version 5.2.0+
+ *
+ * LICENSE: This source file is subject to the New BSD license that is
+ * available through the world-wide-web at the following URI:
+ * http://www.opensource.org/licenses/bsd-license.php. If you did not receive
+ * a copy of the New BSD License and are unable to obtain it through the web,
+ * please send a note to license@php.net so we can mail you a copy immediately.
+ *
+ * @package   Duckk
+ * @author    Arin Sarkissian <arin@rspot.net>
+ * @copyright 2009 Arin Sarkissian
+ * @license   http://www.opensource.org/licenses/bsd-license.php New BSD License
+ * @version   CVS: $Id$
+ */
 
+/**
+ * This is meant to allow you to have quick and easy configs for your app w/
+ * super granular overrides:
+ *
+ * When you ask to get an instance of the config class for the file
+ * Òarin.bla.dev.internal.iniÓ (aka your vhost's name) the class will do the following:
+ *
+ * 1) it will load & parse internal.ini if it exists
+ * 2) override the previously parsed config info with dev.internal.ini if that file exists
+ * 3) override that conbined data info with bla.dev.internal.ini if that file exists
+ * 4) finally it will override the last stepÕs merge with the data from arin.bla.dev.internal.ini
+ *
+ * So, based upon the # of ÒpartsÓ in the file name (seperated by .) it will
+ * keep going down the chain until itÕs parsed and merged all "interim" config files
+ * into your file config array.
+ *
+ */
 class Duckk_Config
 {
     /**
@@ -168,6 +202,16 @@ class Duckk_Config
     }
 
     /**
+     * Get the config
+     *
+     * @return array The parsed config data as an associative array
+     */
+    public function getConfig()
+    {
+        $this->config;
+    }
+
+    /**
      * Get an instance of a configuration
      *
      * @return Duckk_Config
@@ -183,6 +227,26 @@ class Duckk_Config
 
     /**
      * Get a config value
+     *
+     * <pre>
+     * ; Example INI file
+     * host = localhost
+     * environment = qa
+     *
+     * [db]
+     * username = root
+     * host = db.internal
+     * port = 3306
+     *
+     * ; end fake ini file
+     *
+     * <code>
+     * // get the "db" sections value for "port" do:
+     * $config->get('port', 'db');
+     * // get the value of the main "environment" param
+     * $config->get('environment');
+     * </code>
+     * </pre>
      *
      * @param string $paramName The config param name
      * @param string $section   The config section's name
