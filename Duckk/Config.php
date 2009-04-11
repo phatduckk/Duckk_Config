@@ -22,15 +22,15 @@
  * super granular overrides:
  *
  * When you ask to get an instance of the config class for the file
- * “arin.bla.dev.internal.ini” (aka your vhost's name) the class will do the following:
+ * "arin.bla.dev.internal.ini" (aka your vhost's name) the class will do the following:
  *
  * 1) it will load & parse internal.ini if it exists
  * 2) override the previously parsed config info with dev.internal.ini if that file exists
  * 3) override that conbined data info with bla.dev.internal.ini if that file exists
- * 4) finally it will override the last step’s merge with the data from arin.bla.dev.internal.ini
+ * 4) finally it will override the last step's merge with the data from arin.bla.dev.internal.ini
  *
- * So, based upon the # of “parts” in the file name (seperated by .) it will
- * keep going down the chain until it’s parsed and merged all "interim" config files
+ * So, based upon the # of "parts" in the file name (seperated by .) it will
+ * keep going down the chain until it's parsed and merged all "interim" config files
  * into your file config array.
  *
  */
