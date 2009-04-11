@@ -169,8 +169,7 @@ class Duckk_Config
 
             foreach ($config as $k => $v) {
                 if (is_array($v) && isset($old[$k])) {
-                    $r       = $this->mergeConfigs(array($old[$k], $config[$k]), false);
-                    $rtn[$k] = $r;
+                    $rtn[$k] = $this->mergeConfigs(array($old[$k], $config[$k]), false);;
                 }
             }
 
