@@ -207,7 +207,7 @@ class Duckk_Config
      */
     public function getConfig()
     {
-        $this->config;
+        return $this->config;
     }
 
     /**
