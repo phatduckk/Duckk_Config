@@ -45,3 +45,13 @@ Using the class is simple:
     
     $config = Duckk_Config::getInstance($configFilePath);
 ?>        
+
+check out the examples folder for an example script as well as a set of ini files to test with.
+
+NOTE: this class currently only works ini files BUT supports any format. You just have to write 2 methods for each file format. You can either add em to this class or extend this class and add 'em there:
+
+    parse<format>($pathToFile) (ex: parseINI(), parseXML(), parseJSON())
+    and
+    mergeConfigs<format> (ex: mergeConfigsINI(), mergeConfigsXML())
+    
+The class dynamically determines the name of the methods to use for parsing and merging the config files based on the file extension of the config file u pass in to __construct(). So as long as you write the mergeConfigs<xxx>() and parse<xxx>() methods things will work.

@@ -41,21 +41,29 @@ class Duckk_Config
      *
      * @var array
      */
-    private static $configs = array();
+    protected static $configs = array();
 
     /**
      * Configuration info
      *
      * @var array
      */
-    private $config = array();
+    protected $config = array();
 
     /**
      * Is APC enabled?
      *
      * @var bool
      */
-    private static $isAPCEnabled = null;
+    protected static $isAPCEnabled = null;
+    
+    /**
+     * The type of config files being used
+     * INI, XML etc
+     *
+     * @var string
+     */
+    protected $type = null;
 
     /**
      * Prefix for keys used when storing configs in APC
@@ -92,26 +100,28 @@ class Duckk_Config
         if (self::isAPCEnabled() && apc_fetch($apcKey) !== false) {
             $this->config = apc_fetch($apcKey);
         } else {
-            $pathInfo  = pathinfo($configFilePath);
-            $nameParts = array_reverse(explode('.', $pathInfo['filename']));
-            $numParts  = count($nameParts);
-            $allConfig = array();
+            $pathInfo   = pathinfo($configFilePath);
+            $nameParts  = array_reverse(explode('.', $pathInfo['filename']));
+            $numParts   = count($nameParts);
+            $allConfig  = array();
+            $this->type = strtoupper($pathInfo['extension']);
 
             for ($i = $numParts - 1; $i >= 0; $i--) {
                 $parts    = array_reverse(array_slice($nameParts, 0, $numParts - $i));
                 $fileName = implode('.', $parts) . '.ini';
                 $path     = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $fileName;
 
-                // decide which parse<xxx> method to called based on the file extension
+                // decide which parse<xxx>() method to called based on the file extension
                 $allConfig[$path] = call_user_func(
-                    array($this, 'parse' . strtoupper($pathInfo['extension'])),
+                    array($this, "parse{$this->type}"),
                     $path
                 );
             }
 
+            // decide which mergeConfigs<xxx>() method to use 
             $this->config = (empty($allConfig))
                 ? array()
-                : $this->mergeConfigs($allConfig);
+                : call_user_func(array($this, "mergeConfigs{$this->type}"), $allConfig);
 
             if (self::isAPCEnabled()) {
                 apc_store($apcKey, $this->config, self::APC_TTL);
@@ -120,7 +130,7 @@ class Duckk_Config
     }
 
     /**
-     * Merge an array of configuration info
+     * Merge an array of INI configuration info
      *
      * We're not always using array_merge here for a specific reason...
      * If you do the following:
@@ -145,11 +155,11 @@ class Duckk_Config
      * with that problem. if you don't like this then override this method.
      *
      * @param array $configs An array of arrays. Each array should contain the
-     *  results from from one of the parse<xxx> methods
+     *  results from from one of the parseINI() methods
      *
      * @return array The merged configuration
      */
-    protected function mergeConfigs(array $configs, $userArrayMerge = true)
+    protected function mergeConfigsINI(array $configs, $userArrayMerge = true)
     {
         if (empty($configs)) {
             return array();
@@ -169,7 +179,7 @@ class Duckk_Config
 
             foreach ($config as $k => $v) {
                 if (is_array($v) && isset($old[$k])) {
-                    $rtn[$k] = $this->mergeConfigs(array($old[$k], $config[$k]), false);;
+                    $rtn[$k] = $this->mergeConfigsINI(array($old[$k], $config[$k]), false);;
                 }
             }
 
@@ -198,6 +208,35 @@ class Duckk_Config
         }
 
         return parse_ini_file($path, true);
+    }
+
+    /**
+     * Merge an array of INI configuration info  
+     *
+     * @param array $configs An array of arrays. Each array should contain the
+     *  results from from one of the parseXML() method
+     *
+     * @return array The merged configuration       
+     */
+    protected function mergeConfigsXML(array $configs)
+    {
+        // TODO: write this code
+        throw new Exception('Implement me!!!');
+    }
+    
+    /**
+     * Parse an xml file
+     *
+     * TODO: write me
+     *
+     * @param string $path Path to the xml file to parse
+     *
+     * @return array The configuration info an an array
+     */    
+    protected function parseXML($path)
+    {        
+        // TODO: write code to deserialize xml to an array or just use XML_Serializer
+        throw new Exception('Implement me!!!');
     }
 
     /**
