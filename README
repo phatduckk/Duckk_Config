@@ -1,0 +1,47 @@
+This is a quick little inheritance-based config class for PHP.
+
+How's it work?
+
+The config files need to follow the following naming convention:
+    base.ini
+    firstoverride.base.ini
+    secondoverride.firstoverride.base.ini
+    
+With that convention in place this class will:
+    1) load base.ini
+    2) override any intersecting config keys in base.ini w/ the values in firstoverride.base.ini
+    3) override any intersecting config keys in the result of step 2 w/ values in secondoverride.firstoverride.base.ini
+    
+    etc etc there's no limit to how many overrides you can have
+    
+This can be pretty useful when you use apache hostnames as the names of the config files.
+Example:
+
+If the hostname of your dev server is "arin.dev.digg.internal" you can overriding configs like:
+
+    digg.internal.ini
+        base settings for internal builds (QA builds, CI, work in progress PMs see)
+        example: turn off outbound email, turn off signup captcha, etc etc
+        
+    dev.digg.internal.ini
+        dev settings
+        example: set strict error_reporting() value, turn display_errors on, display # queries per page etc etc
+        
+    arin.dev.digg.internal.ini
+        my specific overrides. 
+        examples: enable log level to DEBUG for class Foo, set master DB ip to localhost
+        
+Using the class is simple:
+
+<?php
+    $configFilePath = 'absolute_path/or/path/in/include_path/to/most.specific.config.ini';
+    
+    /*
+     * "most specific" means:
+     * $configFilePath = '/var/www/domains/arin.dev.digg.internal/config/arin.dev.digg.internal.ini';
+     * not: 
+     * $configFilePath = '/var/www/domains/arin.dev.digg.internal/config/digg.internal.ini';
+     */
+    
+    $config = Duckk_Config::getInstance($configFilePath);
+?>        
